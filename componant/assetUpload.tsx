@@ -1,6 +1,7 @@
-'use client';
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { uploadFile, getJobStatus, JobStatus } from '@/lib/api';
+"use client";
+import { useState, useCallback, useRef, useEffect } from "react";
+import { uploadFile, getJobStatus, JobStatus } from "@/lib/api";
+import AssetMetadataForm from "./AssetMetadataForm";
 
 interface UploadJob {
   jobId: string;
@@ -18,15 +19,13 @@ export default function AssetUploader() {
   const pollJobStatus = useCallback(async (jobId: string) => {
     try {
       const status = await getJobStatus(jobId);
-      
-      setJobs(prev =>
-        prev.map(job =>
-          job.jobId === jobId ? { ...job, status } : job
-        )
+
+      setJobs((prev) =>
+        prev.map((job) => (job.jobId === jobId ? { ...job, status } : job))
       );
 
       // หยุด polling ถ้า job เสร็จแล้ว
-      if (status.state === 'completed' || status.state === 'failed') {
+      if (status.state === "completed" || status.state === "failed") {
         const interval = pollIntervals.current.get(jobId);
         if (interval) {
           clearInterval(interval);
@@ -34,7 +33,7 @@ export default function AssetUploader() {
         }
       }
     } catch (error) {
-      console.error('Error polling job status:', error);
+      console.error("Error polling job status:", error);
     }
   }, []);
 
@@ -43,33 +42,89 @@ export default function AssetUploader() {
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      
+
       try {
-        // Upload file
-        const response = await uploadFile(file);
-        
-        // เพิ่ม job ใหม่
-        const newJob: UploadJob = {
-          jobId: response.jobId,
-          filename: response.filename,
-          status: null,
+        // เพิ่ม temporary job ก่อนอัปโหลด
+        const tempJobId = `temp-${Date.now()}-${i}`;
+        const tempJob: UploadJob = {
+          jobId: tempJobId,
+          filename: file.name,
+          status: {
+            state: "waiting",
+            progress: 0,
+            id: tempJobId,
+            timestamp: Date.now(),
+          },
           file,
         };
-        
-        setJobs(prev => [...prev, newJob]);
+
+        setJobs((prev) => [...prev, tempJob]);
+
+        // Upload file ด้วย progress tracking
+        const response = await uploadFile(file, (progress) => {
+          setJobs((prev) =>
+            prev.map((job) =>
+              job.jobId === tempJobId
+                ? {
+                    ...job,
+                    status: {
+                      ...job.status!,
+                      progress: Math.min(progress, 99),
+                    },
+                  }
+                : job
+            )
+          );
+        });
+
+        // Replace temp job กับ real jobId
+        setJobs((prev) =>
+          prev.map((job) =>
+            job.jobId === tempJobId
+              ? {
+                  ...job,
+                  jobId: response.jobId,
+                  status: {
+                    state: "waiting",
+                    progress: 100,
+                    id: response.jobId,
+                    timestamp: Date.now(),
+                  },
+                }
+              : job
+          )
+        );
 
         // เริ่ม polling status ทุก 1 วินาที
         const interval = setInterval(() => {
           pollJobStatus(response.jobId);
         }, 1000);
-        
+
         pollIntervals.current.set(response.jobId, interval);
-        
+
         // Poll ครั้งแรกทันที
         pollJobStatus(response.jobId);
       } catch (error) {
-        console.error('Upload error:', error);
-        alert(`Failed to upload ${file.name}`);
+        console.error("Upload error:", error);
+
+        // แสดง error message ที่เฉพาะเจาะจง
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
+
+        setJobs((prev) =>
+          prev.map((job) =>
+            job.file.name === file.name && job.status?.state !== "active"
+              ? {
+                  ...job,
+                  status: {
+                    ...job.status!,
+                    state: "failed" as const,
+                    error: errorMessage,
+                  },
+                }
+              : job
+          )
+        );
       }
     }
   };
@@ -93,34 +148,34 @@ export default function AssetUploader() {
   // Cleanup intervals on unmount
   useEffect(() => {
     return () => {
-      pollIntervals.current.forEach(interval => clearInterval(interval));
+      pollIntervals.current.forEach((interval) => clearInterval(interval));
       pollIntervals.current.clear();
     };
   }, []);
 
   const getStateColor = (state?: string) => {
     switch (state) {
-      case 'completed':
-        return 'text-green-600';
-      case 'failed':
-        return 'text-red-600';
-      case 'active':
-        return 'text-blue-600';
+      case "completed":
+        return "text-green-600";
+      case "failed":
+        return "text-red-600";
+      case "active":
+        return "text-blue-600";
       default:
-        return 'text-gray-600';
+        return "text-gray-600";
     }
   };
 
   const getStateIcon = (state?: string) => {
     switch (state) {
-      case 'completed':
-        return '✓';
-      case 'failed':
-        return '✗';
-      case 'active':
-        return '⟳';
+      case "completed":
+        return "✓";
+      case "failed":
+        return "✗";
+      case "active":
+        return "⟳";
       default:
-        return '○';
+        return "○";
     }
   };
 
@@ -132,8 +187,8 @@ export default function AssetUploader() {
       <div
         className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
           isDragging
-            ? 'border-blue-500 bg-blue-50'
-            : 'border-gray-300 hover:border-gray-400'
+            ? "border-blue-500 bg-blue-50"
+            : "border-gray-300 hover:border-gray-400"
         }`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -145,15 +200,13 @@ export default function AssetUploader() {
           multiple
           className="hidden"
           onChange={(e) => handleUpload(e.target.files)}
-          accept="image/*,video/*"
+          
         />
-        
+
         <div className="space-y-4">
           <div className="text-6xl">📁</div>
           <div>
-            <p className="text-lg font-medium">
-              Drag and drop files here
-            </p>
+            <p className="text-lg font-medium">Drag and drop files here</p>
             <p className="text-sm text-gray-500 mt-1">
               or click the button below
             </p>
@@ -171,7 +224,7 @@ export default function AssetUploader() {
       {jobs.length > 0 && (
         <div className="mt-8 space-y-4">
           <h2 className="text-xl font-semibold">Upload Queue</h2>
-          
+
           {jobs.map((job) => (
             <div
               key={job.jobId}
@@ -184,19 +237,25 @@ export default function AssetUploader() {
                     {(job.file.size / 1024 / 1024).toFixed(2)} MB
                   </p>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
-                  <span className={`text-2xl ${getStateColor(job.status?.state)}`}>
+                  <span
+                    className={`text-2xl ${getStateColor(job.status?.state)}`}
+                  >
                     {getStateIcon(job.status?.state)}
                   </span>
-                  <span className={`text-sm font-medium ${getStateColor(job.status?.state)}`}>
-                    {job.status?.state || 'Pending'}
+                  <span
+                    className={`text-sm font-medium ${getStateColor(
+                      job.status?.state
+                    )}`}
+                  >
+                    {job.status?.state || "Pending"}
                   </span>
                 </div>
               </div>
 
               {/* Progress Bar */}
-              {job.status && job.status.state !== 'completed' && (
+              {job.status && job.status.state !== "completed" && (
                 <div className="mb-2">
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
@@ -211,12 +270,12 @@ export default function AssetUploader() {
               )}
 
               {/* Results */}
-              {job.status?.state === 'completed' && job.status.result && (
+              {/* {job.status?.state === "completed" && job.status.result && (
                 <div className="mt-3 p-3 bg-green-50 rounded border border-green-200">
                   <p className="text-sm font-medium text-green-800 mb-2">
                     Processing completed!
                   </p>
-                  
+
                   {job.status.result.thumbnail && (
                     <div className="grid grid-cols-2 gap-2 mt-2">
                       <div>
@@ -240,19 +299,64 @@ export default function AssetUploader() {
 
                   {job.status.result.metadata && (
                     <div className="mt-2 text-xs text-gray-600">
-                      <p>Dimensions: {job.status.result.metadata.width} × {job.status.result.metadata.height}</p>
+                      <p>
+                        Dimensions: {job.status.result.metadata.width} ×{" "}
+                        {job.status.result.metadata.height}
+                      </p>
                       <p>Format: {job.status.result.metadata.format}</p>
                     </div>
                   )}
                 </div>
-              )}
+              )} */}
 
               {/* Error */}
-              {job.status?.state === 'failed' && (
+              {job.status?.state === "failed" && (
                 <div className="mt-3 p-3 bg-red-50 rounded border border-red-200">
                   <p className="text-sm text-red-800">
-                    Processing failed. Please try again.
+                    {(job.status as any).error ||
+                      "Processing failed. Please try again."}
                   </p>
+                </div>
+              )}
+
+              {job.status?.state === "completed" && (
+                <div className="mt-3 p-3 bg-green-50 rounded border border-green-200">
+                  <p className="text-sm font-medium text-green-800 mb-2">
+                    Processing completed!
+                  </p>
+
+                  {/* Show preview if available, otherwise show fallback */}
+                  {job.status?.result?.thumbnail ? (
+                    <div className="mb-4">
+                      <img
+                        src={`http://localhost:3001/uploads/${job.status.result.thumbnail}`}
+                        alt="Uploaded"
+                        className="rounded border max-w-xs"
+                      />
+                      {job.status.result.metadata && (
+                        <div className="mt-2 text-xs text-gray-600">
+                          <p>
+                            Dimensions: {job.status.result.metadata.width} × {" "}
+                            {job.status.result.metadata.height}
+                          </p>
+                          <p>Format: {job.status.result.metadata.format}</p>
+                          <p>Asset ID: {job.status.result.assetId}</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="mb-4 text-sm text-gray-600">
+                      <p>No preview available for this file type.</p>
+                      {job.status?.result?.assetId && (
+                        <p className="mt-1">Asset ID: {job.status.result.assetId}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Metadata form (ถ้ามี metadata fields) */}
+                  {job.status?.result?.assetId && (
+                    <AssetMetadataForm assetId={job.status.result.assetId} />
+                  )}
                 </div>
               )}
             </div>
