@@ -28,25 +28,30 @@ export default function AssetMetadataForm({ assetId }: { assetId: number }) {
     // const assetIdNum = parseInt(assetId); // แปลงเป็นตัวเลขสำหรับ API ถ้าจำเป็น
 
     if (!isNaN(assetId) && assetId > 0) {
-      getAsset(assetId)
+      // getAsset(assetId) ส่ง number ไป
+      getAsset(assetId) 
         .then((details) => {
-          if (details.thumbnailPath) {
-            // สร้าง URL เต็มรูปแบบสำหรับรูปภาพ
+          // ***ตรวจสอบโครงสร้างของ details ที่ API คืนมา***
+          // ต้องมั่นใจว่า details มี property ที่ชื่อว่า 'thumbnail' หรือ 'thumbnailPath'
+          // ในโค้ดนี้ใช้ details.thumbnailPath ซึ่งอ้างอิงจาก AssetUploader เดิม:
+          const thumbnailPath = details.thumbnail || details.thumbnailPath; // ใช้ thumbnailPath หรือชื่อ property ที่ถูกต้อง
+
+          if (thumbnailPath) {
             setThumbnailUrl(
-              `http://localhost:3001/uploads/${details.thumbnailPath}`
+              `http://localhost:3001/uploads/${thumbnailPath}`
             );
           } else {
-            setThumbnailUrl(null); // ไม่มี Thumbnail
+            setThumbnailUrl(null); 
           }
-          // ถ้ามีข้อมูล Metadata ที่บันทึกไว้ก่อนหน้า สามารถใช้ details.metadata เพื่อตั้งค่า formData ได้ที่นี่
         })
         .catch((error) => {
-          console.error("Error fetching asset details:", error);
+          console.error(`Error fetching asset details for ID ${assetId}:`, error);
           setAssetError("ไม่สามารถดึงข้อมูลพรีวิวของ Asset ได้");
         });
     }
   }, [assetId]);
 
+  
   const handleInputChange = (fieldId: number, value: string) => {
     setFormData((prev) => ({ ...prev, [fieldId]: value }));
   };
@@ -140,7 +145,7 @@ export default function AssetMetadataForm({ assetId }: { assetId: number }) {
             </div>
           )}
         </div>
-        
+
       </div>
 
       <button

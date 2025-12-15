@@ -35,9 +35,9 @@ export default function AssetUploader() {
           pollIntervals.current.delete(jobId);
         }
 
-        // if (status.state === "completed" && status.result?.assetId) {
-        //   router.push(`/metadata/${status.result.assetId}`);
-        // }
+        if (status.state === "completed" && status.result?.assetId) {
+          router.push(`/metadata/${status.result.assetId}`);
+        }
       }
     } catch (error) {
       console.error("Error polling job status:", error);
