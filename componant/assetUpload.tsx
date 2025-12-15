@@ -1,7 +1,8 @@
 "use client";
 import { useState, useCallback, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { uploadFile, getJobStatus, JobStatus } from "@/lib/api";
-import AssetMetadataForm from "./AssetMetadataForm";
+import AssetMetadataForm from "@/componant/AssetMetadataForm";
 
 interface UploadJob {
   jobId: string;
@@ -15,6 +16,8 @@ export default function AssetUploader() {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pollIntervals = useRef<Map<string, NodeJS.Timeout>>(new Map());
+
+  const router = useRouter();
 
   const pollJobStatus = useCallback(async (jobId: string) => {
     try {
@@ -31,6 +34,10 @@ export default function AssetUploader() {
           clearInterval(interval);
           pollIntervals.current.delete(jobId);
         }
+
+        // if (status.state === "completed" && status.result?.assetId) {
+        //   router.push(`/metadata/${status.result.assetId}`);
+        // }
       }
     } catch (error) {
       console.error("Error polling job status:", error);
