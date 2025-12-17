@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   reactCompiler: true,
   experimental: {
     serverComponentsExternalPackages: ['@mapbox/mapbox-gl-geocoder'], 
@@ -14,7 +13,15 @@ const nextConfig: NextConfig = {
         port: '3001',
         pathname: '/**',
       },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '3001',
+        pathname: '/**',
+      },
     ],
+    // เพิ่มบรรทัดนี้
+    unoptimized: true,
   },
 };
 

@@ -40,7 +40,6 @@ export default function Home() {
   if (loading) {
     return (
       <main className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-6">All Assets</h1>
         <div className="text-center p-10">กำลังโหลด...</div>
       </main>
     );
@@ -49,7 +48,6 @@ export default function Home() {
   if (error) {
     return (
       <main className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-6">All Assets</h1>
         <div className="text-center p-10 text-red-500">
             <p>{error}</p>
         </div>
@@ -64,7 +62,6 @@ export default function Home() {
 
   return (
     <main className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">All Assets</h1>
 
       {assets.length === 0 ? (
         <div className="text-center p-10 border border-dashed rounded-lg">
