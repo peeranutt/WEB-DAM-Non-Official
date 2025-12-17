@@ -4,27 +4,27 @@ import AssetMetadataForm from "@/componant/AssetMetadataForm";
 export default async function MetadataPage({
   params,
 }: {
-  params: { assetId: string | undefined };
+  params: Promise<{ assetId: string }>;
 }) {
-  const assetIdString = String(params.assetId ?? "");
+  const resolvedParams = await params;
+  const assetIdString = resolvedParams.assetId || "";
 
   console.log("MetadataPage received params.assetId:", assetIdString);
-  const assetId = parseInt(assetIdString, 10);
 
-  console.log("MetadataPage received assetId:", assetId);
-
-  if (isNaN(assetId) || assetId <= 0) {
+  if (!assetIdString || isNaN(Number(assetIdString))) {
+    console.log("Invalid asset ID:", assetIdString);
     return (
-      <div className="mt-20 p-6 max-w-lg mx-auto bg-red-50 rounded-lg border border-red-200">
-        <h1 className="text-xl font-semibold text-red-800">
-          Error: Invalid Asset ID provided.
-        </h1>
-        <p className="text-sm text-red-600 mt-2">
-          โปรดตรวจสอบ URL, Asset ID ต้องเป็นตัวเลขจำนวนเต็มบวก
-        </p>
+      <div className="p-8">
+        <h1 className="text-2xl font-bold text-red-600">Invalid Asset ID</h1>
+        <p className="mt-4">Asset ID must be a number.</p>
+        <p>Received: {assetIdString || "(empty)"}</p>
       </div>
     );
   }
+
+  const assetId = parseInt(assetIdString, 10);
+
+  console.log("MetadataPage received assetId:", assetId);
 
   return (
     <div>
