@@ -77,16 +77,18 @@ export default function SearchPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-2">ค้นหาไฟล์</h1>
+       <input
+        placeholder="ค้นหา"
+        className="w-1/2 rounded-full border px-4 py-2 focus:outline-none"
+      />
+      {/* <h1 className="text-3xl font-bold text-gray-900 mb-2">ค้นหาไฟล์</h1>
       <p className="text-gray-600 mb-8">ใช้ฟอร์มด้านล่างเพื่อค้นหาไฟล์ตามเงื่อนไขที่ต้องการ</p>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Sidebar สำหรับ Advanced Search */}
+       */}
+      {/* <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div className="lg:col-span-1">
           <AdvancedSearch onSearch={handleAdvancedSearch} />
         </div>
         
-        {/* ผลลัพธ์การค้นหา */}
         <div className="lg:col-span-3">
           {isLoading ? (
             <div className="text-center py-12">
@@ -118,7 +120,7 @@ export default function SearchPage() {
             </div>
           )}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
