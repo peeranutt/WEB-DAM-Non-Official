@@ -25,7 +25,15 @@ export interface JobStatus {
   timestamp: number;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+export interface Asset {
+  id: number;
+  filename: string;
+  filePath: string;
+  fileMimeType: string;
+  file_type: string;
+}
+
+const API_URL = process.env.NEXT_PUBLIC_API;
 
 export async function uploadFile(
   file: File,
@@ -86,8 +94,40 @@ export async function getJobStatus(jobId: string): Promise<JobStatus> {
   return response.json();
 }
 
-export async function getAsset(assetId: number) {
-  const response = await fetch(`${API_URL}/assets/${assetId}`);
+export async function getAssets(): Promise<Asset[]> {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('No token found');
+  }
+
+  const res = await fetch(`${API_URL}/assets`, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    cache: 'no-store'
+  });
+
+  if (!res.ok) {
+    console.error('Failed to fetch assets:', await res.text());
+    return [];
+  }
+
+  return res.json();
+}
+
+export async function getAsset(assetId: number): Promise<Asset[]> {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('No token found. Please login.');
+  }
+
+  const response = await fetch(`${API_URL}/assets/${assetId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    cache: 'no-store'
+  });
   if (!response.ok) {
     throw new Error('Failed to get asset');
   }

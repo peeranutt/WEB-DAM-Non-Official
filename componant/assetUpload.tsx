@@ -36,7 +36,10 @@ export default function AssetUploader() {
         }
 
         if (status.state === "completed" && status.result?.assetId) {
-          router.push(`/metadata/${status.result.assetId}`);
+          alert(`Upload and processing completed! Asset ID: ${status.result.assetId}`);
+          const assetId = status.result.assetId;
+          router.push(`/metadata/${assetId}`);
+          return
         }
       }
     } catch (error) {
@@ -188,7 +191,7 @@ export default function AssetUploader() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Asset Uploader</h1>
+      <h1 className="text-3xl font-bold mb-6">อัปโหลดไฟล์</h1>
 
       {/* Drop Zone */}
       <div
@@ -213,16 +216,16 @@ export default function AssetUploader() {
         <div className="space-y-4">
           <div className="text-6xl">📁</div>
           <div>
-            <p className="text-lg font-medium">Drag and drop files here</p>
+            <p className="text-lg font-medium">วางไฟล์ที่นี่</p>
             <p className="text-sm text-gray-500 mt-1">
-              or click the button below
+              หรือคลิกที่ปุ่มด้านล่างเพื่อเลือกไฟล์
             </p>
           </div>
           <button
             onClick={() => fileInputRef.current?.click()}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Select Files
+            เลือกไฟล์
           </button>
         </div>
       </div>
@@ -230,7 +233,7 @@ export default function AssetUploader() {
       {/* Jobs List */}
       {jobs.length > 0 && (
         <div className="mt-8 space-y-4">
-          <h2 className="text-xl font-semibold">Upload Queue</h2>
+          <h2 className="text-xl font-semibold">คิวการอัปโหลด</h2>
 
           {jobs.map((job) => (
             <div
@@ -361,9 +364,9 @@ export default function AssetUploader() {
                   )}
 
                   {/* Metadata form (ถ้ามี metadata fields) */}
-                  {job.status?.result?.assetId && (
+                  {/* {job.status?.result?.assetId && (
                     <AssetMetadataForm assetId={job.status.result.assetId} />
-                  )}
+                  )} */}
                 </div>
               )}
             </div>

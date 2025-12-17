@@ -41,7 +41,7 @@ export default function Navbar() {
         </button>
 
         <a
-          href="/"
+          href="/collection"
           className="flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 text-sm font-medium"
         >
           <FolderClosed size={18} />
@@ -49,7 +49,7 @@ export default function Navbar() {
         </a>
 
         <a
-          href="/"
+          href="/last"
           className="flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 text-sm font-medium"
         >
           <History size={18} />

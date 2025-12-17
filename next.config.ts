@@ -6,6 +6,16 @@ const nextConfig: NextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['@mapbox/mapbox-gl-geocoder'], 
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3001',
+        pathname: '/**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

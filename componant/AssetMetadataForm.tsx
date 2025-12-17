@@ -77,8 +77,8 @@ export default function AssetMetadataForm({ assetId }: { assetId: number }) {
   if (loading) return <p>Loading metadata fields...</p>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-green-100">
-      <h3 className="font-medium text-blue-900 mb-3">ข้อมูลเมตา</h3>
+    <div className="max-w-4xl mx-auto p-6 ">
+      <h3 className="font-medium text-black-900 mb-3">ข้อมูลเมตา</h3>
       <div className="flex flex-row justify-between">
         <div className="space-y-3 w-full">
           {fields.map((field) => (
@@ -116,7 +116,7 @@ export default function AssetMetadataForm({ assetId }: { assetId: number }) {
                   onChange={(e) => handleInputChange(field.id, e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded mt-1"
                 >
-                  <option value="">Select...</option>
+                  <option value="">เลือก...</option>
                   {field.options &&
                     JSON.parse(field.options).map((opt: string) => (
                       <option key={opt} value={opt}>
@@ -130,8 +130,7 @@ export default function AssetMetadataForm({ assetId }: { assetId: number }) {
         </div>
 
         <div className="w-2/5 p-4 border rounded-lg bg-white shadow-sm self-start">
-          <p className="font-medium text-gray-700 mb-2">Asset Preview</p>
-           {assetError && <p className="text-red-500 text-sm">{assetError}</p>}
+          {assetError && <p className="text-red-500 text-sm">{assetError}</p>}
           {thumbnailUrl ? (
             <img
               src={thumbnailUrl}
@@ -141,7 +140,7 @@ export default function AssetMetadataForm({ assetId }: { assetId: number }) {
           ) : (
             <div className="bg-gray-200 h-48 flex items-center justify-center rounded text-gray-500">
               {/* แสดงข้อความแจ้ง หากไม่มี Thumbnail */}
-              <p>No preview available</p>
+              <p>ไม่มีรูปภาพ</p>
             </div>
           )}
         </div>
