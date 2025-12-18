@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { getAsset, getMetadataFields, saveAssetMetadata } from "@/lib/api";
+import ImageOrText from "./assets/image-error";
 
 interface MetadataField {
   id: number;
@@ -17,6 +18,8 @@ export default function AssetMetadataForm({ assetId }: { assetId: number }) {
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [assetError, setAssetError] = useState<string | null>(null);
 
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API;
+
   useEffect(() => {
     // ดึงข้อมูล Field
     getMetadataFields()
@@ -24,34 +27,43 @@ export default function AssetMetadataForm({ assetId }: { assetId: number }) {
       .catch(console.error)
       .finally(() => setLoading(false));
 
-    // 2. Logic: ดึงข้อมูล Asset Detail และ Thumbnail
-    // const assetIdNum = parseInt(assetId); // แปลงเป็นตัวเลขสำหรับ API ถ้าจำเป็น
-
     if (!isNaN(assetId) && assetId > 0) {
       // getAsset(assetId) ส่ง number ไป
-      getAsset(assetId) 
+      console.log("Fetching asset details for ID:", assetId);
+      getAsset(assetId)
         .then((details) => {
-          // ***ตรวจสอบโครงสร้างของ details ที่ API คืนมา***
-          // ต้องมั่นใจว่า details มี property ที่ชื่อว่า 'thumbnail' หรือ 'thumbnailPath'
-          // ในโค้ดนี้ใช้ details.thumbnailPath ซึ่งอ้างอิงจาก AssetUploader เดิม:
-          const thumbnailPath = details.thumbnail || details.thumbnailPath; // ใช้ thumbnailPath หรือชื่อ property ที่ถูกต้อง
+          console.log("Asset details received:", details);
+          const thumbnailPath = details.thumbnail;
 
           if (thumbnailPath) {
-            setThumbnailUrl(
-              `http://localhost:3001/uploads/${thumbnailPath}`
-            );
+            setThumbnailUrl(`${API_BASE_URL}/assets/file/${details.id}`);
           } else {
-            setThumbnailUrl(null); 
+            setThumbnailUrl(null);
+          }
+
+          // set metadata form data
+          if (details.metadata && details.metadata.length > 0) {
+            console.log("Asset metadata:", details.metadata);
+
+            const mappedFormData: { [key: number]: string } = {};
+
+            details.metadata.forEach((item: any) => {
+              mappedFormData[item.field_id] = item.value;
+            });
+
+            setFormData(mappedFormData);
           }
         })
         .catch((error) => {
-          console.error(`Error fetching asset details for ID ${assetId}:`, error);
+          console.error(
+            `Error fetching asset details for ID ${assetId}:`,
+            error
+          );
           setAssetError("ไม่สามารถดึงข้อมูลพรีวิวของ Asset ได้");
         });
     }
   }, [assetId]);
 
-  
   const handleInputChange = (fieldId: number, value: string) => {
     setFormData((prev) => ({ ...prev, [fieldId]: value }));
   };
@@ -110,7 +122,7 @@ export default function AssetMetadataForm({ assetId }: { assetId: number }) {
                   className="w-full px-3 py-2 border border-gray-300 rounded mt-1"
                 />
               )}
-              {field.type === "select" && (
+              {/* {field.type === "select" && (
                 <select
                   value={formData[field.id] || ""}
                   onChange={(e) => handleInputChange(field.id, e.target.value)}
@@ -124,7 +136,7 @@ export default function AssetMetadataForm({ assetId }: { assetId: number }) {
                       </option>
                     ))}
                 </select>
-              )}
+              )} */}
             </div>
           ))}
         </div>
@@ -132,19 +144,13 @@ export default function AssetMetadataForm({ assetId }: { assetId: number }) {
         <div className="w-2/5 p-4 border rounded-lg bg-white shadow-sm self-start">
           {assetError && <p className="text-red-500 text-sm">{assetError}</p>}
           {thumbnailUrl ? (
-            <img
-              src={thumbnailUrl}
-              alt={`Preview of Asset ID ${assetId}`}
-              className="w-full h-auto rounded-md object-contain border"
-            />
+            <ImageOrText src={thumbnailUrl} alt="photo" />
           ) : (
             <div className="bg-gray-200 h-48 flex items-center justify-center rounded text-gray-500">
-              {/* แสดงข้อความแจ้ง หากไม่มี Thumbnail */}
               <p>ไม่มีรูปภาพ</p>
             </div>
           )}
         </div>
-
       </div>
 
       <button

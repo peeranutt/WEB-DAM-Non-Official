@@ -5,7 +5,6 @@ import { getSearchFilters } from '@/lib/api';
 
 interface AdvancedSearchProps {
   onSearch: (filters: SearchFilters) => void;
-  onClose?: () => void; 
 }
 
 interface SearchFilters {
@@ -21,7 +20,7 @@ interface FilterOptions {
   keywords: string[];
 }
 
-export default function AdvancedSearch({ onSearch, onClose  }: AdvancedSearchProps) {
+export default function AdvancedSearch({ onSearch  }: AdvancedSearchProps) {
   const [filters, setFilters] = useState<SearchFilters>({});
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     types: [],
@@ -71,14 +70,6 @@ export default function AdvancedSearch({ onSearch, onClose  }: AdvancedSearchPro
       <h2 className="text-xl font-semibold mb-4 text-gray-800">การค้นหาขั้นสูง</h2>
       
       <form onSubmit={handleSubmit} className="space-y-4">
-        {onClose && (
-        <button 
-          onClick={onClose}
-          className="text-gray-500 hover:text-gray-700"
-        >
-          ปิด
-        </button>
-      )}
         {/* ชื่อ */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
