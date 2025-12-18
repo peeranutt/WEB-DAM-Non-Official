@@ -3,7 +3,6 @@ const mockFilters = {
   success: true,
   data: {
     types: ['image', 'video', 'document', 'audio'],
-    collections: ['marketing', 'design', 'product', 'event', 'social', 'web'],
     keywords: ['logo', 'banner', 'header', 'footer', 'icon', 'profile', 'product', 'event', 'social', 'web', 'design', 'brand', 'marketing'],
   },
 };
@@ -96,7 +95,6 @@ export interface Asset {
 export interface SearchFilters {
   filename?: string;
   type?: string;
-  collection?: string;
   fromDate?: Date | null;
   toDate?: Date | null;
   keywords?: string;

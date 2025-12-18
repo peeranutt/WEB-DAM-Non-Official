@@ -15,7 +15,7 @@ import SearchPage from "./search/searchBar";
 export default function Navbar() {
   const router = useRouter();
   return (
-    <div>
+    <div className="">
       <nav className="w-64 h-screen bg-[#F8FAFD] shadow-lg fixed left-0 top-0 flex flex-col">
         {/* Logo */}
         <div className="px-6 py-6 border-b">
@@ -83,7 +83,9 @@ export default function Navbar() {
           </a>
         </div>
       </nav>
-      <SearchPage />
+      <div className="ml-64 flex-1">
+        <SearchPage />
+      </div>
     </div>
   );
 }

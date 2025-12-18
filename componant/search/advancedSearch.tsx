@@ -5,12 +5,12 @@ import { getSearchFilters } from '@/lib/api';
 
 interface AdvancedSearchProps {
   onSearch: (filters: SearchFilters) => void;
+  onClose?: () => void; 
 }
 
 interface SearchFilters {
   name?: string;
   type?: string;
-  collection?: string;
   fromDate?: Date | null;
   toDate?: Date | null;
   keywords?: string;
@@ -18,15 +18,13 @@ interface SearchFilters {
 
 interface FilterOptions {
   types: string[];
-  collections: string[];
   keywords: string[];
 }
 
-export default function AdvancedSearch({ onSearch }: AdvancedSearchProps) {
+export default function AdvancedSearch({ onSearch, onClose  }: AdvancedSearchProps) {
   const [filters, setFilters] = useState<SearchFilters>({});
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     types: [],
-    collections: [],
     keywords: []
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -73,6 +71,14 @@ export default function AdvancedSearch({ onSearch }: AdvancedSearchProps) {
       <h2 className="text-xl font-semibold mb-4 text-gray-800">การค้นหาขั้นสูง</h2>
       
       <form onSubmit={handleSubmit} className="space-y-4">
+        {onClose && (
+        <button 
+          onClick={onClose}
+          className="text-gray-500 hover:text-gray-700"
+        >
+          ปิด
+        </button>
+      )}
         {/* ชื่อ */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -103,26 +109,6 @@ export default function AdvancedSearch({ onSearch }: AdvancedSearchProps) {
             {filterOptions.types.map(type => (
               <option key={type} value={type}>
                 {type}
-              </option>
-            ))}
-          </select> */}
-        </div>
-
-        {/* คอลเลคชัน */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            คอลเลคชัน
-          </label>
-          {/* <select
-            name="collection"
-            value={filters.collection || ''}
-            onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">เลือกคอลเลคชันทั้งหมด</option>
-            {filterOptions.collections.map(collection => (
-              <option key={collection} value={collection}>
-                {collection}
               </option>
             ))}
           </select> */}
