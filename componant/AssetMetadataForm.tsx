@@ -163,6 +163,15 @@ export default function AssetMetadataForm({ assetId }: { assetId: number }) {
       </div>
 
       <button
+        onClick={() =>
+          window.open(`${API_BASE_URL}/assets/${assetId}/download`, "_blank")
+        }
+        className="mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+      >
+        ดาวน์โหลดไฟล์
+      </button>
+
+      <button
         onClick={handleSave}
         disabled={saving}
         className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
