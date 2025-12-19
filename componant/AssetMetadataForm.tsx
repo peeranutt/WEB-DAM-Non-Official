@@ -48,7 +48,16 @@ export default function AssetMetadataForm({ assetId }: { assetId: number }) {
             const mappedFormData: { [key: number]: string } = {};
 
             details.metadata.forEach((item: any) => {
-              mappedFormData[item.field_id] = item.value;
+              let value = item.value;
+
+              // ถ้าเป็น date → แปลง ISO เป็น yyyy-MM-dd
+              if (item.field?.type === "date" && value) {
+                console.log("Original date value:", value);
+                console.log("Converted date value:", value.split("T")[0]);
+                value = value.split("T")[0];
+              }
+
+              mappedFormData[item.field_id] = value;
             });
 
             setFormData(mappedFormData);
@@ -158,7 +167,7 @@ export default function AssetMetadataForm({ assetId }: { assetId: number }) {
         disabled={saving}
         className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
       >
-        {saving ? "Saving..." : "Save Asset Information"}
+        {saving ? "Saving..." : "บันทึก"}
       </button>
     </div>
   );
