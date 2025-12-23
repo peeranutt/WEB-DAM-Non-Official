@@ -6,6 +6,7 @@ import ImageOrText from "./assets/image-error";
 interface MetadataField {
   id: number;
   name: string;
+  name_th: string;
   type: string;
   options?: string;
 }
