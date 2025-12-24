@@ -102,11 +102,12 @@ export default function AssetMetadataForm({ assetId }: { assetId: number }) {
     <div className="max-w-4xl mx-auto p-6 ">
       <h3 className="font-medium text-black-900 mb-3">ข้อมูลเมตา</h3>
       <div className="flex flex-row justify-between">
+        <pre>{JSON.stringify(fields, null, 2)}</pre>
         <div className="space-y-3 w-full">
           {fields.map((field) => (
             <div key={field.id}>
               <label className="block text-sm font-medium text-gray-700">
-                {field.name}
+                {field.name_th}
               </label>
               {field.type === "text" && (
                 <input

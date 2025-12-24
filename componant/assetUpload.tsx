@@ -1,7 +1,7 @@
 "use client";
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { uploadFile, getJobStatus, JobStatus } from "@/lib/api";
+import { uploadFiles, getJobStatus, JobStatus } from "@/lib/api";
 import AssetMetadataForm from "@/componant/AssetMetadataForm";
 
 interface UploadJob {
@@ -36,11 +36,16 @@ export default function AssetUploader() {
         }
 
         if (status.state === "completed" && status.result?.assetId) {
-          alert(`Upload and processing completed! Asset ID: ${status.result.assetId}`);
+          alert(
+            `Upload and processing completed! Asset ID: ${status.result.assetId}`
+          );
           const assetId = status.result.assetId;
-          console.log("Navigating to asset metadata page for asset ID:", assetId);
+          console.log(
+            "Navigating to asset metadata page for asset ID:",
+            assetId
+          );
           router.push(`/metadata/${assetId}`);
-          return
+          return;
         }
       }
     } catch (error) {
@@ -49,96 +54,98 @@ export default function AssetUploader() {
   }, []);
 
   const handleUpload = async (files: FileList | null) => {
-    if (!files || files.length === 0) return;
+  if (!files || files.length === 0) return;
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
 
-      try {
-        // เพิ่ม temporary job ก่อนอัปโหลด
-        const tempJobId = `temp-${Date.now()}-${i}`;
-        const tempJob: UploadJob = {
-          jobId: tempJobId,
-          filename: file.name,
-          status: {
-            state: "waiting",
-            progress: 0,
-            id: tempJobId,
-            timestamp: Date.now(),
-          },
-          file,
-        };
+    try {
+      const tempJobId = `temp-${Date.now()}-${i}`;
 
-        setJobs((prev) => [...prev, tempJob]);
+      const tempJob: UploadJob = {
+        jobId: tempJobId,
+        filename: file.name,
+        status: {
+          state: "waiting",
+          progress: 0,
+          id: tempJobId,
+          timestamp: Date.now(),
+        },
+        file,
+      };
 
-        // Upload file ด้วย progress tracking
-        const response = await uploadFile(file, (progress) => {
-          setJobs((prev) =>
-            prev.map((job) =>
-              job.jobId === tempJobId
-                ? {
-                    ...job,
-                    status: {
-                      ...job.status!,
-                      progress: Math.min(progress, 99),
-                    },
-                  }
-                : job
-            )
-          );
-        });
+      setJobs((prev) => [...prev, tempJob]);
 
-        // Replace temp job กับ real jobId
+      const response = await uploadFiles([file], (progress) => {
         setJobs((prev) =>
           prev.map((job) =>
             job.jobId === tempJobId
               ? {
                   ...job,
-                  jobId: response.jobId,
-                  status: {
-                    state: "waiting",
-                    progress: 100,
-                    id: response.jobId,
-                    timestamp: Date.now(),
-                  },
-                }
-              : job
-          )
-        );
-
-        // เริ่ม polling status ทุก 1 วินาที
-        const interval = setInterval(() => {
-          pollJobStatus(response.jobId);
-        }, 1000);
-
-        pollIntervals.current.set(response.jobId, interval);
-
-        // Poll ครั้งแรกทันที
-        pollJobStatus(response.jobId);
-      } catch (error) {
-        console.error("Upload error:", error);
-
-        // แสดง error message ที่เฉพาะเจาะจง
-        const errorMessage =
-          error instanceof Error ? error.message : "Unknown error";
-
-        setJobs((prev) =>
-          prev.map((job) =>
-            job.file.name === file.name && job.status?.state !== "active"
-              ? {
-                  ...job,
                   status: {
                     ...job.status!,
-                    state: "failed" as const,
-                    error: errorMessage,
+                    progress: Math.min(progress, 99),
                   },
                 }
               : job
           )
         );
-      }
+      });
+
+      const realJob = response.jobs[0];
+
+      // 🔁 replace temp job
+      setJobs((prev) =>
+        prev.map((job) =>
+          job.jobId === tempJobId
+            ? {
+                ...job,
+                jobId: realJob.jobId,
+                status: {
+                  state: "waiting",
+                  progress: 100,
+                  id: realJob.jobId,
+                  timestamp: Date.now(),
+                },
+              }
+            : job
+        )
+      );
+
+      // ✅ ใช้ realJob.jobId เท่านั้น
+      const interval = setInterval(() => {
+        pollJobStatus(realJob.jobId);
+      }, 1000);
+
+      pollIntervals.current.set(realJob.jobId, interval);
+
+      // poll ครั้งแรก
+      pollJobStatus(realJob.jobId);
+
+    } catch (error) {
+      console.error("Upload error:", error);
+
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+
+      setJobs((prev) =>
+        prev.map((job) =>
+          job.file.name === file.name && job.status?.state !== "active"
+            ? {
+                ...job,
+                status: {
+                  ...job.status!,
+                  state: "failed",
+                  error: errorMessage,
+                },
+              }
+            : job
+        )
+      );
     }
-  };
+  }
+};
+
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -211,7 +218,6 @@ export default function AssetUploader() {
           multiple
           className="hidden"
           onChange={(e) => handleUpload(e.target.files)}
-          
         />
 
         <div className="space-y-4">
@@ -347,7 +353,7 @@ export default function AssetUploader() {
                       {job.status.result.metadata && (
                         <div className="mt-2 text-xs text-gray-600">
                           <p>
-                            Dimensions: {job.status.result.metadata.width} × {" "}
+                            Dimensions: {job.status.result.metadata.width} ×{" "}
                             {job.status.result.metadata.height}
                           </p>
                           <p>Format: {job.status.result.metadata.format}</p>
@@ -359,7 +365,9 @@ export default function AssetUploader() {
                     <div className="mb-4 text-sm text-gray-600">
                       <p>No preview available for this file type.</p>
                       {job.status?.result?.assetId && (
-                        <p className="mt-1">Asset ID: {job.status.result.assetId}</p>
+                        <p className="mt-1">
+                          Asset ID: {job.status.result.assetId}
+                        </p>
                       )}
                     </div>
                   )}

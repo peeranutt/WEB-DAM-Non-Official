@@ -22,6 +22,7 @@ export default function LoginPage() {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: 'include', // รับ cookie
       body: JSON.stringify(form),
     });
 
@@ -29,6 +30,7 @@ export default function LoginPage() {
 
     const data = await res.json();
     console.log("data ",data);
+    localStorage.setItem('access_token', data.access_token);
     if (data.success) {
       alert("Login successful!"); 
       router.push("/");
