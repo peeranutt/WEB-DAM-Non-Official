@@ -2,7 +2,7 @@
 import Navbar from "../../componant/nav";
 import AllAssrts from "@/componant/allAssets";
 
-export default function Upload() {
+export default function Last() {
   return (
     <div>
       <Navbar />

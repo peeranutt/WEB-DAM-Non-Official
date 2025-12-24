@@ -15,12 +15,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'http',
-        hostname: '127.0.0.1',
+        hostname: 'dam-api',
         port: '3001',
         pathname: '/**',
       },
     ],
-    // เพิ่มบรรทัดนี้
     unoptimized: true,
   },
 };

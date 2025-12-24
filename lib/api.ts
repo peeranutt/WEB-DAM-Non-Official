@@ -85,11 +85,19 @@ export interface JobStatus {
 }
 
 export interface Asset {
-  id: number | string;
+  id: number;
+  original_name: string;
   filename: string;
-  filePath: string;
-  fileMimeType: string;
+  thumbnail: string | null;
   file_type: string;
+  file_size: number | string;
+  path: string;
+  keywords: string[];
+  status: string;
+  create_by: number;
+  created_at: string;
+  updated_at: string;
+  metadata?:[]
 }
 
 export interface SearchFilters {
@@ -212,8 +220,11 @@ export async function getAssets(): Promise<Asset[]> {
   return res.json();
 }
 
-export async function getAsset(assetId: number): Promise<Asset[]> {
+export async function getAsset(assetId: number): Promise<Asset> {
   const token = localStorage.getItem('token');
+  console.log("Fetching asset with ID:", assetId);
+  console.log("Using token:", token);
+
   if (!token) {
     throw new Error('No token found. Please login.');
   }
@@ -222,13 +233,16 @@ export async function getAsset(assetId: number): Promise<Asset[]> {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-    cache: 'no-store'
+    cache: 'no-store',
   });
+
   if (!response.ok) {
     throw new Error('Failed to get asset');
   }
-  return response.json();
+
+  return response.json() as Promise<Asset>;
 }
+
 
 export async function getMetadataFields() {
   const response = await fetch(`${API_URL}/assets/metadata-fields`);
@@ -243,7 +257,7 @@ export async function saveAssetMetadata(
   metadata: { fieldId: number; value: string }[]
 ) {
   const response = await fetch(`${API_URL}/assets/${assetId}/metadata`, {
-    method: 'POST',
+    method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ metadata }),
   });

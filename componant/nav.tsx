@@ -8,6 +8,7 @@ import {
   Trash2,
   Server,
   FileChartLine,
+  Search ,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import SearchPage from "./search/searchBar";
@@ -33,6 +34,14 @@ export default function Navbar() {
             <Home size={18} />
             หน้าหลัก
           </a>
+
+          <button
+            onClick={() => router.push("/search")}
+            className="w-full flex items-center gap-3 px-6 py-3 text-left text-gray-700 hover:bg-gray-100 hover:text-gray-900 text-sm font-medium"
+          >
+            <Search size={18} />
+            ค้นหา
+          </button>
 
           <button
             onClick={() => router.push("/upload")}
@@ -83,9 +92,6 @@ export default function Navbar() {
           </a>
         </div>
       </nav>
-      <div className="ml-64 flex-1">
-        <SearchPage />
-      </div>
     </div>
   );
 }

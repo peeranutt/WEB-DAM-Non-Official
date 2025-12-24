@@ -38,6 +38,7 @@ export default function AssetUploader() {
         if (status.state === "completed" && status.result?.assetId) {
           alert(`Upload and processing completed! Asset ID: ${status.result.assetId}`);
           const assetId = status.result.assetId;
+          console.log("Navigating to asset metadata page for asset ID:", assetId);
           router.push(`/metadata/${assetId}`);
           return
         }
