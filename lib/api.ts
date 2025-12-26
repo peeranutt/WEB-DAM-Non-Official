@@ -1,3 +1,4 @@
+import { sha265 } from "./hash";
 const mockFilters = {
   success: true,
   data: {
@@ -156,7 +157,12 @@ export async function uploadFiles(
   onProgress?: (p: number) => void
 ): Promise<{ jobs: { jobId: string; filename: string }[] }> {
   const formData = new FormData();
-  files.forEach((file) => formData.append("files", file));
+
+  for (const file of files){
+    const checksum = await sha265(file);
+    formData.append("files", file);
+    formData.append("checksums", checksum);
+  }
 
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();

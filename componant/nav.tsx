@@ -91,6 +91,7 @@ export default function Navbar() {
             รายงาน
           </a>
         </div>
+        
       </nav>
     </div>
   );
