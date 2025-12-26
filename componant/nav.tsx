@@ -56,7 +56,7 @@ export default function Navbar() {
             className="flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 text-sm font-medium"
           >
             <FolderClosed size={18} />
-            คอลเลกชัน
+            กลุ่ม
           </a>
 
           <a
