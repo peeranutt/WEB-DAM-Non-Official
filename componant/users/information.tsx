@@ -6,7 +6,9 @@ export default function UserPage() {
 
   useEffect(() => {
     async function fetchUser() {
-      const token = localStorage.getItem('access_token');
+      const token = localStorage.getItem('token');
+
+      console.log('Fetched token from localStorage:', token);
       if (!token) return;
 
       const res = await fetch('http://localhost:3001/auth/user', {
