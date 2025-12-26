@@ -13,18 +13,11 @@ export default function Home() {
     async function fetchAssets() {
       try {
         setLoading(true);
-        // ตรวจสอบ Token ก่อนเรียก API
-        if (!localStorage.getItem('token')) {
-            setError("กรุณาล็อกอินเพื่อดูรายการ Asset.");
-            setLoading(false);
-            return;
-        }
 
         const fetchedAssets = await getAssets();
         setAssets(fetchedAssets);
       } catch (err: any) {
         console.error("Error fetching assets:", err);
-        // แสดงข้อความ Error ที่มาจาก API หรือการตรวจสอบ Token
         setError(err.message || "ไม่สามารถดึงข้อมูล Asset ได้ กรุณาลองใหม่.");
       } finally {
         setLoading(false);

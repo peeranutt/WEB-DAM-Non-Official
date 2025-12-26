@@ -1,40 +1,60 @@
 'use client';
-import { useEffect, useState } from 'react';
 
-export default function UserPage() {
-  const [user, setUser] = useState<any>(null);
+import { useEffect, useRef, useState } from 'react';
 
-  useEffect(() => {
-    async function fetchUser() {
-      const token = localStorage.getItem('token');
+interface User {
+  id: number;
+  username: string;
+  role: string;
+}
 
-      console.log('Fetched token from localStorage:', token);
-      if (!token) return;
+export default function Information() {
+  const [user, setUser] = useState<User | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const fetchedRef = useRef(false);
 
+  const fetchUser = async () => {
+    try {
       const res = await fetch('http://localhost:3001/auth/user', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
 
+      console.log('Fetch user response status:', res.status);
+
       if (!res.ok) {
-        console.error(await res.json());
+        const err = await res.json();
+        setError(err.message || 'Unauthorized');
         return;
       }
 
-      setUser(await res.json());
+      const data = await res.json();
+      setUser(data);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to fetch user');
     }
+  };
 
+  useEffect(() => {
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
     fetchUser();
   }, []);
 
-  if (!user) return <p>Loading...</p>;
+  if (error) {
+    return <div className="text-red-500">Error: {error}</div>;
+  }
+
+  if (!user) {
+    return <div>Loading user...</div>;
+  }
 
   return (
-    <div>
-      <h1>User</h1>
-      <p>ID: {user.userId}</p>
-      <p>Username: {user.username}</p>
+    <div className="p-4">
+      <h1 className="text-xl font-bold">User Information</h1>
+      <p><strong>ID:</strong> {user.id}</p>
+      <p><strong>Username:</strong> {user.username}</p>
+      <p><strong>Role:</strong> {user.role}</p>
     </div>
   );
 }

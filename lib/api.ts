@@ -199,16 +199,12 @@ export async function getJobStatus(jobId: string): Promise<JobStatus> {
 }
 
 export async function getAssets(): Promise<Asset[]> {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    throw new Error("No token found");
-  }
 
   const res = await fetch(`${API_URL}/assets`, {
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
+    credentials: 'include',
     cache: "no-store",
   });
 
@@ -221,18 +217,9 @@ export async function getAssets(): Promise<Asset[]> {
 }
 
 export async function getAsset(assetId: number): Promise<Asset> {
-  const token = localStorage.getItem("token");
-  console.log("Fetching asset with ID:", assetId);
-  console.log("Using token:", token);
-
-  if (!token) {
-    throw new Error("No token found. Please login.");
-  }
 
   const response = await fetch(`${API_URL}/assets/${assetId}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: 'include',
     cache: "no-store",
   });
 
