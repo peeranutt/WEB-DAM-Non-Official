@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from 'react';
 interface User {
   id: number;
   username: string;
-  role: string;
 }
 
 export default function Information() {
@@ -54,7 +53,6 @@ export default function Information() {
       <h1 className="text-xl font-bold">User Information</h1>
       <p><strong>ID:</strong> {user.id}</p>
       <p><strong>Username:</strong> {user.username}</p>
-      <p><strong>Role:</strong> {user.role}</p>
     </div>
   );
 }

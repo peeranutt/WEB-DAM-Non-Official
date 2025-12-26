@@ -33,7 +33,6 @@ export default function LoginPage() {
       setMessage("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
     }
   };
-//   role ของแต่ละโฟลเด้อไม่เหมือนกันจะเก้บยังไง เช่น โฟลเด้อ 1 เป้นแค่คนดู แต่โฟลเด้อ2เป็นแอดมิน
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
