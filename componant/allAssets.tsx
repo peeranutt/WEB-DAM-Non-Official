@@ -1,6 +1,4 @@
-// app/page.tsx
-'use client'; // Client Component เนื่องจากใช้ useEffect และ useState
-
+'use client';
 import { useEffect, useState } from 'react';
 import { getAssets, Asset } from '@/lib/api'; 
 import AssetCard from '@/componant/assets/card'; 
