@@ -10,12 +10,6 @@ export default function LoginPage() {
 
   const router = useRouter();
 
-  // useEffect(() => {
-  //   fetch(`${process.env.NEXT_PUBLIC_API}/users`)
-  //     .then(res => res.json())
-  //     .then(data => setUsers(data));
-  // }, []);
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -30,7 +24,6 @@ export default function LoginPage() {
 
     const data = await res.json();
     console.log("data ",data);
-    localStorage.setItem('access_token', data.access_token);
     if (data.success) {
       alert("Login successful!"); 
       router.push("/");
