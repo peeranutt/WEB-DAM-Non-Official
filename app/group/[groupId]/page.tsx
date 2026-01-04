@@ -10,7 +10,9 @@ interface Member {
     id: number;
     username: string;
     fullname: string;
+    email: string;
   };
+
   permission: string;
 }
 
@@ -30,6 +32,7 @@ export default function GroupManage() {
       const response = await getGroupMembers(Number(groupId));
       if (response.success) {
         setMembers(response.members);
+        console.log("Fetched members:", response.members);
       }
     } catch (error) {
       console.error("Failed to fetch members:", error);
@@ -65,14 +68,14 @@ export default function GroupManage() {
     <div>
       <Navbar />
       <main className="ml-64 flex-1 p-10">
-        <h1 className="text-2xl mb-6">Manage Group {groupId}</h1>
+        {/* <h1 className="text-2xl mb-6">สมาชิกกลุ่ม {groupId}</h1> */}
 
         <div className="mb-6">
-          <h2 className="text-xl mb-4">Add Member</h2>
+          <h2 className="text-xl mb-4">เพิ่มสมาชิก</h2>
           <div className="flex gap-2">
             <input
               type="text"
-              placeholder="Username"
+              placeholder="ชื่อผู้ใช้"
               value={newUsername}
               onChange={(e) => setNewUsername(e.target.value)}
               className="p-2 border rounded"
@@ -81,26 +84,27 @@ export default function GroupManage() {
               onClick={handleAddMember}
               className="bg-blue-500 text-white px-4 py-2 rounded"
             >
-              Add
+              เพิ่ม
             </button>
           </div>
         </div>
 
         <div>
-          <h2 className="text-xl mb-4">Members</h2>
+          <h2 className="text-xl mb-4">ข้อมูลสมาชิก</h2>
           <div className="space-y-2">
             {members.map((member) => (
               <div key={member.id} className="flex justify-between items-center p-4 border rounded">
                 <div>
-                  <span className="font-medium">{member.user.username}</span>
-                  <span className="text-gray-500 ml-2">({member.user.fullname})</span>
+                  <span className="font-medium">{member.user.fullname}</span>
+                  <span className="text-gray-500 ml-2">{member.user.email}</span>
+                  <span className="text-gray-500 ml-2">({member.user.username})</span>
                   <span className="ml-2 text-sm bg-gray-200 px-2 py-1 rounded">{member.permission}</span>
                 </div>
                 <button
                   onClick={() => handleRemoveMember(member.user.id)}
                   className="bg-red-500 text-white px-3 py-1 rounded"
                 >
-                  Remove
+                  ลบ
                 </button>
               </div>
             ))}
