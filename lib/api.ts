@@ -278,6 +278,31 @@ export async function getUserGroups() {
   return response.json();
 }
 
+export async function createCollection(name: string, description?: string) {
+  const response = await fetch(`${API_URL}/collections`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ name, description }),
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || 'Failed to create collection');
+  }
+  return response.json();
+}
+
+export async function getCollections() {
+  const response = await fetch(`${API_URL}/collections`, {
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || 'Failed to get collections');
+  }
+  return response.json();
+}
+
 export async function addGroupMember(groupId: number, username: string, permission?: string) {
   const response = await fetch(`${API_URL}/groups/${groupId}/members`, {
     method: 'POST',
