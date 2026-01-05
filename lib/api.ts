@@ -253,6 +253,93 @@ export async function saveAssetMetadata(
   return response.json();
 }
 
+export async function createGroup(name: string, description?: string) {
+  const response = await fetch(`${API_URL}/groups`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ name, description }),
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || 'Failed to create group');
+  }
+  return response.json();
+}
+
+export async function getUserGroups() {
+  const response = await fetch(`${API_URL}/groups`, {
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || 'Failed to get groups');
+  }
+  return response.json();
+}
+
+export async function createCollection(name: string, description?: string) {
+  const response = await fetch(`${API_URL}/collections`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ name, description }),
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || 'Failed to create collection');
+  }
+  return response.json();
+}
+
+export async function getCollections() {
+  const response = await fetch(`${API_URL}/collections`, {
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || 'Failed to get collections');
+  }
+  return response.json();
+}
+
+export async function addGroupMember(groupId: number, username: string, permission?: string) {
+  const response = await fetch(`${API_URL}/groups/${groupId}/members`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ username, permission }),
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || 'Failed to add member');
+  }
+  return response.json();
+}
+
+export async function removeGroupMember(groupId: number, userId: number) {
+  const response = await fetch(`${API_URL}/groups/${groupId}/members/${userId}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || 'Failed to remove member');
+  }
+  return response.json();
+}
+
+export async function getGroupMembers(groupId: number) {
+  const response = await fetch(`${API_URL}/groups/${groupId}/members`, {
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || 'Failed to get members');
+  }
+  return response.json();
+}
+
 export const searchAssets = async (
   filters: SearchFilters
 ): Promise<SearchResponse> => {

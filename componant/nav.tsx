@@ -60,14 +60,6 @@ export default function Navbar() {
           </a>
 
           <a
-            href="/last"
-            className="flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 text-sm font-medium"
-          >
-            <History size={18} />
-            ล่าสุด
-          </a>
-
-          <a
             href="/"
             className="flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-900 text-sm font-medium"
           >
