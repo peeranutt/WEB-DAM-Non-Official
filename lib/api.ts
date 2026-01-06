@@ -329,6 +329,21 @@ export async function removeGroupMember(groupId: number, userId: number) {
   return response.json();
 }
 
+export async function updateGroupMemberPermission(groupId: number, userId: number, permission: string) {
+  console.log("Updating permission:", { groupId, userId, permission });
+  const response = await fetch(`${API_URL}/groups/${groupId}/members/${userId}/permission`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ permission }),
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || 'Failed to update member permission');
+  }
+  return response.json();
+}
+
 export async function getGroupMembers(groupId: number) {
   const response = await fetch(`${API_URL}/groups/${groupId}/members`, {
     credentials: 'include',

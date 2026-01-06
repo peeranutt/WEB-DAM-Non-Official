@@ -7,6 +7,8 @@ import GroupCard from "../groups";
 interface User {
   id: number;
   username: string;
+  fullname: string;
+  email: string;
 }
 
 interface Group {
@@ -24,20 +26,37 @@ export default function Information() {
 
   const fetchUser = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API}/auth/user`, {
+      const authRes = await fetch(`${process.env.NEXT_PUBLIC_API}/auth/user`, {
         credentials: "include",
       });
+
+      if (!authRes.ok) {
+        setError("Unauthorized");
+        return;
+      }
+
+      const authData = await authRes.json();
+      const userId = authData.id;
+
+      // Then fetch full user details
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API}/users/${userId}`,
+        {
+          credentials: "include",
+        }
+      );
 
       console.log("Fetch user response status:", res.status);
 
       if (!res.ok) {
         const err = await res.json();
-        setError(err.message || "Unauthorized");
+        setError(err.message || "Failed to fetch user details");
         return;
       }
 
       const data = await res.json();
       setUser(data);
+      console.log("Fetched user data:", data);
     } catch (err) {
       console.error(err);
       setError("Failed to fetch user");
@@ -75,13 +94,20 @@ export default function Information() {
 
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold">User Information</h1>
-      <p>
-        <strong>ID:</strong> {user.id}
-      </p>
-      <p>
-        <strong>Username:</strong> {user.username}
-      </p>
+      <div className="bg-white p-6 rounded-xl shadow-md w-[83%] m-10">
+        <h1 className="text-xl font-bold">ข้อมูลผู้ใช้</h1>
+        <p>
+          <strong>ชื่อผู้ใช้:</strong> {user.username}
+        </p>
+        <p>
+          <strong>ชื่อ-นามสกุล:</strong> {user.fullname}
+        </p>
+        <p>
+          <strong>อีเมล:</strong> {user.email}
+        </p>
+      </div>
+
+      <h1 className="text-xl font-bold mx-10">กลุ่มของคุณ</h1>
       <div className="grid grid-cols-5 gap-6 w-5/6 m-10">
         <GroupCard create onGroupCreated={fetchGroups} />
         {groups.map((group) => (
@@ -93,7 +119,7 @@ export default function Information() {
             <div className="h-28 bg-gray-400 relative"></div>
             <div className="px-3 py-2 flex justify-between items-center">
               <span className="font-medium">{group.name}</span>
-              <span>⋮</span>
+              {/* <span>⋮</span> */}
             </div>
           </div>
         ))}

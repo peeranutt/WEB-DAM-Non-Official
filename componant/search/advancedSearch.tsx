@@ -33,7 +33,7 @@ export default function AdvancedSearch({ onSearch  }: AdvancedSearchProps) {
     const loadFilters = async () => {
       try {
         const data = await getSearchFilters();
-        setFilterOptions(data);
+        setFilterOptions(data.data);
       } catch (error) {
         console.error('Failed to load filters:', error);
       }
@@ -90,7 +90,7 @@ export default function AdvancedSearch({ onSearch  }: AdvancedSearchProps) {
           <label className="block text-sm font-medium text-gray-700 mb-1">
             ประเภท
           </label>
-          {/* <select
+          <select
             name="type"
             value={filters.type || ''}
             onChange={handleInputChange}
@@ -102,7 +102,7 @@ export default function AdvancedSearch({ onSearch  }: AdvancedSearchProps) {
                 {type}
               </option>
             ))}
-          </select> */}
+          </select>
         </div>
 
         {/* วันที่แก้ไขล่าสุด */}

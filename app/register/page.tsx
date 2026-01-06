@@ -36,7 +36,6 @@ export default function LoginPage() {
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
-      <h1>register ja</h1>
       <form
         onSubmit={handleLogin}
         className="bg-white p-6 rounded-xl shadow-md w-1/3"
