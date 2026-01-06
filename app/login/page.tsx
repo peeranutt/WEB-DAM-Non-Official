@@ -34,12 +34,6 @@ export default function LoginPage() {
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
-      <div>
-      <h1>Users</h1>
-      {users.map((u: any) => (
-        <div key={u.id}>{u.username}</div>
-      ))}
-    </div>
       <form
         onSubmit={handleLogin}
         className="bg-white p-6 rounded-xl shadow-md w-80"
