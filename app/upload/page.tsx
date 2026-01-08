@@ -1,7 +1,6 @@
 "use client";
 import Navbar from "../../componant/nav";
-// import UploadAssets from "../../componant/assets/upload";
-import UploadAssets from "../../componant/assetUpload";
+import UploadAssets from "../../componant/assets/assetUpload";
 
 export default function Upload() {
   return (

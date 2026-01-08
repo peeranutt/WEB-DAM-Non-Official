@@ -1,6 +1,6 @@
 "use client";
 import Navbar from "@/componant/nav";
-import AllAssrts from "@/componant/allAssets";
+import AllAssrts from "@/componant/assets/allAssets";
 
 export default function Home() {
   return (

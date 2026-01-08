@@ -1,76 +1,4 @@
 import { sha265 } from "./hash";
-const mockFilters = {
-  success: true,
-  data: {
-    types: ["image", "video", "document", "audio"],
-    keywords: [
-      "logo",
-      "banner",
-      "header",
-      "footer",
-      "icon",
-      "profile",
-      "product",
-      "event",
-      "social",
-      "web",
-      "design",
-      "brand",
-      "marketing",
-    ],
-  },
-};
-
-const mockAssets = [
-  {
-    id: 1,
-    name: "Company Logo",
-    filename: "logo.png",
-    filePath: "/assets/logo.png",
-    fileMimeType: "image/png",
-    file_type: "image",
-    type: "image",
-    url: "http://localhost:3001/uploads/logo.png",
-    thumbnail: "http://localhost:3001/uploads/thumbnails/logo.png",
-    collection: "brand",
-    keywords: ["logo", "brand", "identity"],
-    size: 5120,
-    updatedAt: "2024-01-15T10:30:00Z",
-    createdAt: "2024-01-10T14:20:00Z",
-  },
-  {
-    id: 2,
-    name: "Product Banner",
-    filename: "banner.jpg",
-    filePath: "/assets/banner.jpg",
-    fileMimeType: "image/jpeg",
-    file_type: "image",
-    type: "image",
-    url: "http://localhost:3001/uploads/banner.jpg",
-    thumbnail: "http://localhost:3001/uploads/thumbnails/banner.jpg",
-    collection: "marketing",
-    keywords: ["banner", "promotion", "product"],
-    size: 10240,
-    updatedAt: "2024-01-14T09:15:00Z",
-    createdAt: "2024-01-12T11:45:00Z",
-  },
-  {
-    id: 3,
-    name: "User Manual",
-    filename: "manual.pdf",
-    filePath: "/assets/manual.pdf",
-    fileMimeType: "application/pdf",
-    file_type: "document",
-    type: "document",
-    url: "http://localhost:3001/uploads/manual.pdf",
-    thumbnail: "http://localhost:3001/uploads/thumbnails/manual.png",
-    collection: "product",
-    keywords: ["document", "manual", "guide"],
-    size: 20480,
-    updatedAt: "2024-01-13T16:20:00Z",
-    createdAt: "2024-01-11T08:30:00Z",
-  },
-];
 
 export interface UploadResponse {
   success: boolean;
@@ -154,7 +82,8 @@ const buildQuery = (params: Record<string, any>) => {
 
 export async function uploadFiles(
   files: File[],
-  onProgress?: (p: number) => void
+  onProgress?: (p: number) => void,
+  storageLocation?: string
 ): Promise<{ jobs: { jobId: string; filename: string }[] }> {
   const formData = new FormData();
 
@@ -162,6 +91,11 @@ export async function uploadFiles(
     const checksum = await sha265(file);
     formData.append("files", file);
     formData.append("checksums", checksum);
+  }
+  console.log("Uploading to storage location:", storageLocation);
+
+  if (storageLocation) {
+    formData.append("storageLocation", storageLocation);
   }
 
   return new Promise((resolve, reject) => {
@@ -183,8 +117,9 @@ export async function uploadFiles(
       }
     };
 
-    xhr.open("POST", `${API_URL}/assets/upload`, true);
+    xhr.open("POST", `${API_URL}/assets/upload?storageLocation=${storageLocation}`, true);
     xhr.send(formData);
+    console.log('File upload request sent.', { files, storageLocation });
   });
 }
 
@@ -371,7 +306,6 @@ export const searchAssets = async (
 
 export const getSearchFilters = async () => {
   try {
-    // ถ้า API ไม่พร้อมให้ใช้ mock data
     console.log("Attempting to fetch filters from API...");
 
     const response = await fetch(`${API_URL}/search/filters`, {
@@ -387,11 +321,9 @@ export const getSearchFilters = async () => {
       return data;
     } else {
       console.warn("API filters endpoint failed, using mock data");
-      return mockFilters;
     }
   } catch (error) {
     console.warn("Error fetching filters, using mock data:", error);
-    return mockFilters;
   }
 };
 

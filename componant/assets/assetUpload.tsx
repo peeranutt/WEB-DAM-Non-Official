@@ -2,17 +2,26 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { uploadFiles, getJobStatus, JobStatus } from "@/lib/api";
-import AssetMetadataForm from "@/componant/AssetMetadataForm";
+import { storageServers } from '../../../api-dam/config/storage.config';
 
 interface UploadJob {
   jobId: string;
   filename: string;
   status: JobStatus | null;
   file: File;
+  storageServers?: string;
+}
+
+enum StorageLocation {
+  STORAGE1 = "DAM_STORAGE1",
+  STORAGE2 = "DAM_STORAGE2",
 }
 
 export default function AssetUploader() {
   const [jobs, setJobs] = useState<UploadJob[]>([]);
+  const [storageLocation, setStorageLocation] = useState<StorageLocation>(
+    StorageLocation.STORAGE1
+  );
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pollIntervals = useRef<Map<string, NodeJS.Timeout>>(new Map());
@@ -54,98 +63,101 @@ export default function AssetUploader() {
   }, []);
 
   const handleUpload = async (files: FileList | null) => {
-  if (!files || files.length === 0) return;
+    if (!files || files.length === 0) return;
 
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
 
-    try {
-      const tempJobId = `temp-${Date.now()}-${i}`;
+      try {
+        const tempJobId = `temp-${Date.now()}-${i}`;
 
-      const tempJob: UploadJob = {
-        jobId: tempJobId,
-        filename: file.name,
-        status: {
-          state: "waiting",
-          progress: 0,
-          id: tempJobId,
-          timestamp: Date.now(),
-        },
-        file,
-      };
+        const tempJob: UploadJob = {
+          jobId: tempJobId,
+          filename: file.name,
+          status: {
+            state: "waiting",
+            progress: 0,
+            id: tempJobId,
+            timestamp: Date.now(),
+          },
+          file,
+          storageServers: storageLocation,
+        };
 
-      setJobs((prev) => [...prev, tempJob]);
+        setJobs((prev) => [...prev, tempJob]);
 
-      const response = await uploadFiles([file], (progress) => {
+        const response = await uploadFiles(
+          [file],
+          (progress) => {
+            setJobs((prev) =>
+              prev.map((job) =>
+                job.jobId === tempJobId
+                  ? {
+                      ...job,
+                      status: {
+                        ...job.status!,
+                        progress: Math.min(progress, 99),
+                      },
+                    }
+                  : job
+              )
+            );
+          },
+          storageLocation
+        );
+
+        const realJob = response.jobs[0];
+
+        // replace temp job
         setJobs((prev) =>
           prev.map((job) =>
             job.jobId === tempJobId
               ? {
                   ...job,
+                  jobId: realJob.jobId,
                   status: {
-                    ...job.status!,
-                    progress: Math.min(progress, 99),
+                    state: "waiting",
+                    progress: 100,
+                    id: realJob.jobId,
+                    timestamp: Date.now(),
                   },
                 }
               : job
           )
         );
-      });
 
-      const realJob = response.jobs[0];
+        // ใช้ realJob.jobId เท่านั้น
+        const interval = setInterval(() => {
+          pollJobStatus(realJob.jobId);
+        }, 1000);
 
-      // 🔁 replace temp job
-      setJobs((prev) =>
-        prev.map((job) =>
-          job.jobId === tempJobId
-            ? {
-                ...job,
-                jobId: realJob.jobId,
-                status: {
-                  state: "waiting",
-                  progress: 100,
-                  id: realJob.jobId,
-                  timestamp: Date.now(),
-                },
-              }
-            : job
-        )
-      );
+        pollIntervals.current.set(realJob.jobId, interval);
 
-      // ✅ ใช้ realJob.jobId เท่านั้น
-      const interval = setInterval(() => {
+        // poll ครั้งแรก
         pollJobStatus(realJob.jobId);
-      }, 1000);
+      } catch (error) {
+        console.error("Upload error:", error);
 
-      pollIntervals.current.set(realJob.jobId, interval);
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
 
-      // poll ครั้งแรก
-      pollJobStatus(realJob.jobId);
-
-    } catch (error) {
-      console.error("Upload error:", error);
-
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
-
-      setJobs((prev) =>
-        prev.map((job) =>
-          job.file.name === file.name && job.status?.state !== "active"
-            ? {
-                ...job,
-                status: {
-                  ...job.status!,
-                  state: "failed",
-                  error: errorMessage,
-                },
-              }
-            : job
-        )
-      );
+        setJobs((prev) =>
+          prev.map((job) =>
+            job.file.name === file.name && job.status?.state !== "active"
+              ? {
+                  ...job,
+                  status: {
+                    ...job.status!,
+                    state: "failed",
+                    error: errorMessage,
+                  },
+                }
+              : job
+          )
+        );
+      }
     }
-  }
-};
-
+  };
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -200,6 +212,17 @@ export default function AssetUploader() {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">อัปโหลดไฟล์</h1>
+
+      <label htmlFor="storage-location">เลือกที่เก็บข้อมูล:</label>
+      <select
+        id="storage-location"
+        className="border rounded p-2 mb-4"
+        value={storageLocation}
+        onChange={(e) => setStorageLocation(e.target.value as StorageLocation)}
+      >
+        <option value={StorageLocation.STORAGE1}>พื้นที่เก็บข้อมูล 1</option>
+        <option value={StorageLocation.STORAGE2}>พื้นที่เก็บข้อมูล 2</option>
+      </select>
 
       {/* Drop Zone */}
       <div
@@ -286,46 +309,6 @@ export default function AssetUploader() {
                 </div>
               )}
 
-              {/* Results */}
-              {/* {job.status?.state === "completed" && job.status.result && (
-                <div className="mt-3 p-3 bg-green-50 rounded border border-green-200">
-                  <p className="text-sm font-medium text-green-800 mb-2">
-                    Processing completed!
-                  </p>
-
-                  {job.status.result.thumbnail && (
-                    <div className="grid grid-cols-2 gap-2 mt-2">
-                      <div>
-                        <p className="text-xs text-gray-600 mb-1">Thumbnail:</p>
-                        <img
-                          src={`http://localhost:3001/uploads/${job.status.result.thumbnail}`}
-                          alt="Thumbnail"
-                          className="rounded border"
-                        />
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-600 mb-1">Optimized:</p>
-                        <img
-                          src={`http://localhost:3001/uploads/${job.status.result.optimized}`}
-                          alt="Optimized"
-                          className="rounded border"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {job.status.result.metadata && (
-                    <div className="mt-2 text-xs text-gray-600">
-                      <p>
-                        Dimensions: {job.status.result.metadata.width} ×{" "}
-                        {job.status.result.metadata.height}
-                      </p>
-                      <p>Format: {job.status.result.metadata.format}</p>
-                    </div>
-                  )}
-                </div>
-              )} */}
-
               {/* Error */}
               {job.status?.state === "failed" && (
                 <div className="mt-3 p-3 bg-red-50 rounded border border-red-200">
@@ -371,11 +354,6 @@ export default function AssetUploader() {
                       )}
                     </div>
                   )}
-
-                  {/* Metadata form (ถ้ามี metadata fields) */}
-                  {/* {job.status?.result?.assetId && (
-                    <AssetMetadataForm assetId={job.status.result.assetId} />
-                  )} */}
                 </div>
               )}
             </div>

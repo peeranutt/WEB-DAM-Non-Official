@@ -1,5 +1,5 @@
 import Navbar from "@/componant/nav";
-import AssetMetadataForm from "@/componant/AssetMetadataForm";
+import AssetMetadataForm from "@/componant/assets/AssetMetadataForm";
 
 export default async function MetadataPage({
   params,

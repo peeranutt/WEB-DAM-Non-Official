@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getUserGroups } from "@/lib/api";
-import GroupCard from "../groups";
+import GroupCard from "./groups";
 
 interface User {
   id: number;

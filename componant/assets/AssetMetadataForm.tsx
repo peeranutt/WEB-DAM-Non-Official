@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { getAsset, getMetadataFields, saveAssetMetadata } from "@/lib/api";
-import ImageOrText from "./assets/image-error";
+import ImageOrText from "./image-error";
 
 interface MetadataField {
   id: number;
